@@ -180,6 +180,8 @@ def main():
 
     parser.add_argument("--mxepath",
                         help="Path to mxe installation. (Default: /opt/mxe)")
+    parser.add_argument("--mxehost",
+                        help="Mxe host to use. (Default: x86_64-pc-linux-gnu)")
     parser.add_argument("--mxetarget",
                         help="Mxe target to use. (Default: i686-w64-mingw32.shared)")
     parser.add_argument("--qtplugins",
@@ -211,6 +213,10 @@ def main():
     mxe_target = args.mxetarget
     if not mxe_target:
         mxe_target = "i686-w64-mingw32.shared"
+
+    mxe_host = args.mxehost
+    if not mxe_host:
+        mxe_host = "x86_64-pc-linux-gnu"
 
     qt_plugins = args.qtplugins
     if qt_plugins:
@@ -245,11 +251,12 @@ def main():
 
     mxe_files = find_files(mxe_path)
     mxe_target_files = [f for f in mxe_files if f.find(mxe_target) != -1]
+    mxe_host_files = [f for f in mxe_files if f.find(mxe_host) != -1]
     mxe_dlls = [f for f in mxe_target_files if f.lower().endswith(".dll")]
 
     objdump = next(iter([f for f in mxe_target_files if f.endswith("objdump")]), None)
     qmake = next(iter([f for f in mxe_target_files if f.endswith("qmake-qt5") or os.path.basename(f) == "qmake"]), None)
-    qmlimportscanner = next(iter([f for f in mxe_target_files if f.endswith("qmlimportscanner")]), None)
+    qmlimportscanner = next(iter([f for f in mxe_target_files + mxe_host_files if f.endswith("qmlimportscanner")]), None)
 
     error = None
 
